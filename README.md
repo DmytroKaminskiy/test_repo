@@ -66,11 +66,15 @@ git diff --cached
 
 git clone https://github.com/DmytroKaminskiy/test_repo.git
 
+git status
+git pull origin master 
+git checkout -b branch1
 
 
 
-
-
+--O--O--O--O--O
+         \
+          --O--O-----
 
 
 
