@@ -55,12 +55,16 @@ $ git config --global user.email "dmytro.kaminskyi92@gmail.com"
 git rm --cached -r .idea
 git rm -r .idea
 
+git diff
+git diff --cached
+
 1 - 2 - 3
 
 1. Changes [.idea, README.md...]red
 2. Staging area [app.py]
 3. Commit
 
+git clone https://github.com/DmytroKaminskiy/test_repo.git
 
 
 
