@@ -15,11 +15,18 @@ pip install -r requirements.txt
 
 export FLASK_APP=app.py
 export FLASK_DEBUG=1
-flask run -p 50001
+flask run -p 5001
 printenv
 echo $USER
 
+deactivate
+
 nano main.py
+
+# pdb
+where - stack
+c - continue
+q - quit
 
 - --- --- ---
 TYPE

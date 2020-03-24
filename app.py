@@ -1,51 +1,57 @@
-from flask import Flask
-import requests
+import sqlite3
 
-
-def foo2():
-    file = open('hw.csv', 'r')
-    line = file.read()
-    file.close()
-    line = line.strip()
-    line = line.split('\n')
-    headers = line[0].split(',')
-    data = line[1:]
-
-    Height_Sum = 0
-    Weight_Sum = 0
-
-    for i in range(len(data)):
-        data[i] = data[i].strip()
-        data[i] = data[i].split(',')
-        Height_Sum += float(data[i][1])
-        Weight_Sum += float(data[i][2])
-    Height_av = Height_Sum / len(data)
-    Weight_av = Weight_Sum / len(data)
-
-    Height_av *= 2.54
-    Weight_av *= 0.453592
-    return Height_av, Weight_av
-
-
-def foo():
-    for i in range(100):
-        url = 'http://api.open-notify.org/astros.json'
-        r = requests.get(url, auth=('user', 'pass'))
-        return r.json()
-
+from flask import Flask, request
 
 app = Flask(__name__)  # __main__
 
 
-@app.route('/')
-def astronaut():
-    data = foo()
-    out_put = 'В данный момент на орбите  ' + str(data['number']) + ' астронавтов!'
-    return out_put
+def exec_query(query: str, params: tuple = None) -> list:
+
+    try:
+        conn = sqlite3.connect('./chinook.db')  # path to file
+        cursor = conn.cursor()
+
+        if params is None:
+            cursor.execute(query)
+        else:
+            cursor.execute(query, params)
+
+        result = cursor.fetchall()
+    finally:
+        conn.close()
+
+    return result
+
+# client -> request -> flask -> database -> flask -> response -> client
 
 
-@app.route('/hw/')
-def hw():
-    data = foo()
-    out_put = 'В данный момент на орбите  ' + str(data['number']) + ' астронавтов!'
-    return out_put
+@app.route('/customers/')
+def home():
+    # http://127.0.0.1:5000/customers/?country=USA&city=NewYork
+
+    country = request.args.get('country')
+    if country:
+        params = (country, )
+        query = f'SELECT * FROM customers WHERE Country = ?;'
+        result = exec_query(query, params)
+    else:
+        query = f'SELECT * FROM customers;'
+        result = exec_query(query)
+
+    # from pdb import set_trace; set_trace()
+    return '<br>'.join(map(str, result))
+
+
+@app.route('/invoices/')
+def invoices_count():
+    query = 'SELECT COUNT(*) FROM invoices;'
+    result = exec_query(query)
+    return str(result)
+
+'''
+1. Вью функция должна принимать параметр который регулирует количество символов (вью функция генерации 10 случайных символов)
+/generate-password/?length=20 + validation, [20, 10000000000000000, -20, sefsefse]
+2. Вью функция должна фильтровать таблицу кастомерс по Штату И Городу ?state=IL&city=Boston ?state=IL ?city=Boston NoParameters
+3. Вью функция должна выводить количество уникальных имен (FirstName) из таблицы customers
+4. Вывести общую прибыль из колонки invoice_items ((UnitPrice * Quantity) + ...)
+'''
